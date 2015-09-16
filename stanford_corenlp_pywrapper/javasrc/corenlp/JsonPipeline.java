@@ -12,12 +12,13 @@ import java.util.Properties;
 import org.codehaus.jackson.JsonNode;
 
 import util.JsonUtil;
-import util.U;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import edu.stanford.nlp.sentiment.SentimentCoreAnnotations.AnnotatedTree;
+import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
 import edu.stanford.nlp.dcoref.CorefChain;
 import edu.stanford.nlp.dcoref.CorefCoreAnnotations.CorefChainAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation;
@@ -50,6 +51,8 @@ import edu.stanford.nlp.util.CoreMap;
  * A wrapper around a CoreNLP Pipeline object that knows how to turn output annotations into JSON,
  * with 0-oriented indexing conventions.
  * 
+ *  TODO: no coref yet, will be an 'entities' key in the document's json object.
+ *  
  *  implementation: needs to mirror edu/stanford/nlp/pipeline/XMLOutputter.java somewhat
  */
 public class JsonPipeline {
@@ -85,6 +88,13 @@ public class JsonPipeline {
 			tokenAnnos.add(token.getString(annoClass));
 		}
 		sent_info.put(keyname, (Object) tokenAnnos);
+	}
+
+	static void addSentimentTree(Map<String,Object> sent_info, CoreMap sentence) {
+		String[] sentimentText = { "Very Negative","Negative", "Neutral", "Positive", "Very Positive"};
+		// Tree tree = sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
+		int score = RNNCoreAnnotations.getPredictedClass(sentence.get(AnnotatedTree.class));
+		sent_info.put("sentiment", sentimentText[score]);
 	}
 	
 	static void addParseTree(Map<String,Object> sent_info, CoreMap sentence) {
@@ -257,7 +267,9 @@ class edu.stanford.nlp.ling.CoreAnnotations$SentenceIndexAnnotation	1
 		case "regexner":
 			addTokenAnno(sent_info, sentence, "ner", NamedEntityTagAnnotation.class);
 			break;
-		case "sentiment": throw new RuntimeException("TODO");
+		case "sentiment": 
+			addSentimentTree(sent_info,sentence);
+			break;
 		case "truecase": throw new RuntimeException("TODO");
 		case "parse":
 			addParseTree(sent_info,sentence);

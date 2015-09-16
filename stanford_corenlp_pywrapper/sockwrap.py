@@ -23,7 +23,7 @@ MODES_items = [
     'description':"POS (and lemmas)",}),
 ('ner',     {'annotators':"tokenize, ssplit, pos, lemma, ner, entitymentions",
     'description':"POS and NER (and lemmas)",}),
-('parse',    {'annotators':"tokenize, ssplit, pos, lemma, parse",
+('parse',    {'annotators':"tokenize, ssplit, pos, lemma, parse, sentiment",
     'description':"fairly basic parsing with POS, lemmas, trees, dependencies",}),
 ('nerparse', {'annotators':"tokenize, ssplit, pos, lemma, ner, entitymentions, parse",
     'description':"parsing with NER, POS, lemmas, depenencies."}),
